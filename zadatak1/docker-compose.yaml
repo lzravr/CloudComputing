@@ -1,0 +1,36 @@
+version: "3"
+services:
+  mysql-service:
+    image: mysql:5.7
+    container_name: db
+    ports:
+      - 3306:3306
+    expose:
+      - "3306"
+    environment:
+        MYSQL_ROOT_PASSWORD: toor
+        MYSQL_DATABASE: library
+        MYSQL_USER: admin
+        MYSQL_PASSWORD: admin
+    volumes:
+      - data:/var/lib/mysql
+  rest:
+    image: lzravr/books_rest
+    container_name: rest
+    restart: on-failure
+    depends_on:
+      - mysql-service
+    ports:
+      - 8080:8080
+    expose:
+      - "8080"
+  front:
+    image: lzravr/books_front
+    container_name: front
+    depends_on:
+      - rest
+    ports:
+      - 81:80
+volumes:
+    data:
+      driver: local
