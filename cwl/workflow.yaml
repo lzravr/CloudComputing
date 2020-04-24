@@ -1,0 +1,21 @@
+javafajlovitar:
+  class: File
+  path: klase.tar.xz
+nazivijavafajlova: [Fajl1.java, Fajl2.java]
+naziviklasa: [Klasa3, Klasa1, Klasa2]
+nazivijarova: [Klasa3.jar, Klasa1.jar, Klasa2.jar]
+klase: "*.class"
+# naziviklasa: [
+#   {class: File, 
+#   path: Klasa1.class},
+#   {class: File, 
+#   path: Klasa2.class},
+#   {class: File, 
+#   path: Klasa3.class},
+# ]
+jarovi: [
+  # { class: File,
+  #   path: Klasa1.jar },
+  { class: File,
+    path: Klasa12.jar }
+]

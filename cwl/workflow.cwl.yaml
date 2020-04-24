@@ -1,0 +1,149 @@
+#!/usr/bin/env cwl-runner
+
+cwlVersion: v1.0
+class: Workflow
+
+requirements:
+  SubworkflowFeatureRequirement: {}
+  ScatterFeatureRequirement: {}
+  InlineJavascriptRequirement: {}
+
+inputs:
+  javafajlovitar: File
+  nazivijavafajlova: string[]
+  naziviklasa: string[]
+  jarovi: File[]
+
+steps:
+# ------------------------------------------------------
+  raspakivanje:
+    run:
+      class: CommandLineTool
+      baseCommand: [tar, --extract]
+      inputs:
+        nazivFajla:
+          type: File
+          inputBinding:
+            prefix: --file
+            position: 1
+        fajlZaRaspakovati:
+          type: string[]
+          inputBinding:
+            position: 1
+          
+      outputs:
+        izlaz:
+          type: File[]
+          outputBinding:
+            glob: $(inputs.fajlZaRaspakovati)
+
+    in:
+      nazivFajla: javafajlovitar
+      fajlZaRaspakovati: nazivijavafajlova
+
+    out: [izlaz]
+# ------------------------------------------------------
+  jarovanje:
+    run:
+      class: Workflow
+      inputs:
+        javaFajlovi: File[]
+        classfileNames: string[]
+      steps:
+      # ----------------------------------
+        kompajliranje:
+          run:
+            class: CommandLineTool
+            hints: 
+              DockerRequirements:
+                dockerPull: openjdk:9.0.1-11-slim
+            baseCommand: javac
+            arguments: ["-d", $(runtime.outdir)]
+            inputs:
+              ulazniFajlovi: 
+                type:
+                  type: array
+                  items: File
+                  inputBinding:
+                    position: 1
+            outputs:
+              klasfajlovi:
+                type: File[]
+                outputBinding:
+                  glob: "*.class"             
+          in:
+            ulazniFajlovi: javaFajlovi
+          out:
+            [klasfajlovi]
+      # ----------------------------------
+        pakovanje:
+          run:
+            class: CommandLineTool
+            hints: 
+              DockerRequirements:
+                dockerPull: openjdk:9.0.1-11-slim
+            baseCommand: [jar, cef]
+            arguments:
+              - ${ return [inputs.mainKlase, inputs.mainKlase + ".jar"]}
+            inputs:
+              mainKlase:
+                type: string
+              klase:
+                type: File[]
+                  # type: array
+                  # items: File
+                inputBinding:
+                  position: 2
+            outputs:
+              jarovi:
+                type: File
+                outputBinding:
+                  glob: "*.jar" 
+          scatter: mainKlase            
+          in:
+            mainKlase: classfileNames
+            klase: kompajliranje/klasfajlovi
+          out:
+            [jarovi]
+      # ----------------------------------
+      outputs:
+        izlazneKlase:
+          type: File[]
+          # outputSource: kompajliranje/klasfajlovi
+          outputSource: pakovanje/jarovi
+
+    in:
+      javaFajlovi: raspakivanje/izlaz
+      classfileNames: naziviklasa
+    out: [izlazneKlase]
+# ------------------------------------------------------
+  izvrsavanje:
+    run:
+      class: CommandLineTool
+      hints: 
+        DockerRequirements:
+          dockerPull: openjdk:9.0.1-11-slim
+      baseCommand: [java, -jar]
+      inputs:
+        fajloviZaIzvrsavanje:
+          type: File[]
+          inputBinding:
+            position: 1
+      outputs:
+        izlaz:
+          type: stdout
+      stdout: "out.txt"
+
+    # scatter: fajloviZaIzvrsavanje
+    in:
+      # fajloviZaIzvrsavanje: jarovanje/izlazneKlase
+      fajloviZaIzvrsavanje: jarovi
+    out: [izlaz]
+
+outputs:
+  izlazni_fajl:
+    # type: File[]
+    # outputSource: jarovanje/izlazneKlase
+    type: File
+    outputSource: izvrsavanje/izlaz
+
