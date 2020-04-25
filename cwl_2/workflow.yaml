@@ -1,0 +1,17 @@
+fajlovi: [
+  {
+    class: File,
+    path: 1.csv
+  },
+  {
+    class: File,
+    path: 2.csv
+  },
+  {
+    class: File,
+    path: 3.csv
+  }
+]
+
+sms: 1
+poziv: 2

@@ -1,0 +1,87 @@
+#!/usr/bin/env cwl-runner
+
+cwlVersion: v1.0
+class: Workflow
+
+requirements:
+  ScatterFeatureRequirement: {}
+
+inputs:
+  fajlovi: File[]
+  sms: float
+  poziv: float
+
+steps:
+  sumiranje:
+    run:
+      class: CommandLineTool
+      hints:
+        DockerRequirement:
+          dockerPull: lzravr/phone-listing-parser
+      baseCommand: [python, /usr/src/parse/parse.py]
+      inputs:
+        files:
+          type: File
+          inputBinding:
+            position: 1
+        sms:
+          type: float
+          inputBinding:
+            position: 2
+        poziv:
+          type: float
+          inputBinding:
+            position: 3
+      outputs:
+        sumirani:
+          type: File
+          outputBinding:
+            glob: "*.csv"
+    scatter: files
+    in:
+      files: fajlovi
+      sms: sms
+      poziv: poziv
+    out: [sumirani]
+# ------------------------------------------------------------
+  katovanje:
+    run:
+      class: CommandLineTool
+      baseCommand: [cat]
+      inputs:
+        csvs:
+          type: File[]
+          inputBinding:
+            position: 1
+      outputs:
+        svi:
+          type: stdout
+      stdout: "svi.csv"
+    in:
+      csvs: sumiranje/sumirani
+    out: [svi]
+# ------------------------------------------------------------
+  presek:
+    run:
+      class: CommandLineTool
+      hints:
+        DockerRequirement:
+          dockerPull: lzravr/phone-listing-parser
+      baseCommand: [python, /usr/src/parse/find_max.py]
+      inputs:
+        suma:
+          type: File
+          inputBinding:
+            position: 1
+      outputs:
+        max:
+          type: stdout
+      stdout: resenje.txt
+    in:
+      suma: katovanje/svi
+    out: [max]
+
+outputs:
+  izlazni_fajl:
+    type: File
+    outputSource: presek/max
