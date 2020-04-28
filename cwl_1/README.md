@@ -1,2 +1,2 @@
 # Zadatak 2
-Tekst zadatka je u CWL-domaci.pdf.
+Tekst zadatka se nalazi u CWL-domaci.pdf.

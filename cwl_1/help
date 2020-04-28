@@ -1,5 +1,0 @@
-requirements:
-- class: InitialWorkDirRequirement
-listing: $(inputs.naziviklasa)
-
-valueFrom: $(self.basename)

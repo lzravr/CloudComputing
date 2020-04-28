@@ -12,7 +12,6 @@ inputs:
   javafajlovitar: File
   nazivijavafajlova: string[]
   naziviklasa: string[]
-  jarovi: File[]
 
 steps:
 # ------------------------------------------------------
@@ -55,7 +54,7 @@ steps:
           run:
             class: CommandLineTool
             hints: 
-              DockerRequirements:
+              DockerRequirement:
                 dockerPull: openjdk:9.0.1-11-slim
             baseCommand: javac
             arguments: ["-d", $(runtime.outdir)]
@@ -70,7 +69,7 @@ steps:
               klasfajlovi:
                 type: File[]
                 outputBinding:
-                  glob: "*.class"             
+                  glob: "*.class"          
           in:
             ulazniFajlovi: javaFajlovi
           out:
@@ -79,8 +78,11 @@ steps:
         pakovanje:
           run:
             class: CommandLineTool
+            requirements:
+              InitialWorkDirRequirement:
+                listing: $(inputs.klase)
             hints: 
-              DockerRequirements:
+              DockerRequirement:
                 dockerPull: openjdk:9.0.1-11-slim
             baseCommand: [jar, cef]
             arguments:
@@ -89,11 +91,12 @@ steps:
               mainKlase:
                 type: string
               klase:
-                type: File[]
-                  # type: array
-                  # items: File
-                inputBinding:
-                  position: 2
+                type: 
+                  type: array
+                  items: File
+                  inputBinding:
+                    position: 2
+                    valueFrom: $(self.basename)
             outputs:
               jarovi:
                 type: File
@@ -109,7 +112,6 @@ steps:
       outputs:
         izlazneKlase:
           type: File[]
-          # outputSource: kompajliranje/klasfajlovi
           outputSource: pakovanje/jarovi
 
     in:
@@ -118,32 +120,65 @@ steps:
     out: [izlazneKlase]
 # ------------------------------------------------------
   izvrsavanje:
-    run:
-      class: CommandLineTool
-      hints: 
-        DockerRequirements:
-          dockerPull: openjdk:9.0.1-11-slim
-      baseCommand: [java, -jar]
+    run: 
+      class: Workflow
       inputs:
-        fajloviZaIzvrsavanje:
-          type: File[]
-          inputBinding:
-            position: 1
+        jarovi: File[]
+      steps:
+      # ----------------------------------
+        pokretanje: 
+          run:
+            class: CommandLineTool
+            hints: 
+              DockerRequirement:
+                dockerPull: openjdk:9.0.1-11-slim
+            baseCommand: java
+            arguments:
+              - prefix: -jar
+                valueFrom: $(inputs.fajloviZaIzvrsavanje)
+            inputs:
+              fajloviZaIzvrsavanje:
+                type: File
+            outputs:
+              txtovi:
+                type: stdout
+            stdout: $(inputs.fajloviZaIzvrsavanje.basename+".txt")
+
+          scatter: fajloviZaIzvrsavanje
+          in:
+            fajloviZaIzvrsavanje: jarovi
+          out: 
+            [txtovi]
+      # ----------------------------------
+        katovanje:
+          run:
+            class: CommandLineTool
+            baseCommand: cat
+            inputs:
+              fajlovizakat:
+                type: File[]
+                inputBinding:
+                  position: 1
+            outputs:
+              izlaz:
+                type: stdout
+            stdout: out.txt
+
+          in:
+            fajlovizakat: pokretanje/txtovi
+          out: 
+            [izlaz]
+
       outputs:
         izlaz:
-          type: stdout
-      stdout: "out.txt"
-
-    # scatter: fajloviZaIzvrsavanje
+          type: File
+          outputSource: katovanje/izlaz
+    
     in:
-      # fajloviZaIzvrsavanje: jarovanje/izlazneKlase
-      fajloviZaIzvrsavanje: jarovi
+      jarovi: jarovanje/izlazneKlase
     out: [izlaz]
 
 outputs:
   izlazni_fajl:
-    # type: File[]
-    # outputSource: jarovanje/izlazneKlase
     type: File
     outputSource: izvrsavanje/izlaz
-
