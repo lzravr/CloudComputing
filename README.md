@@ -8,5 +8,7 @@ U repozitorijumu se nalaze zadaci odradjeni u okviru predmeta racunarstvo u obla
 
 ## Materijal
 [Docker tutorial](https://docker-curriculum.com/)
+
 [CWL tutorial](https://andrewjesaitis.com/2017/02/common-workflow-language---a-tutorial-on-making-bioinformatics-repeatable/)
+
 [CWL User Guide](https://www.commonwl.org/user_guide/)
