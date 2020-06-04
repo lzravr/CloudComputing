@@ -8,8 +8,11 @@ Serverski deo aplikacije je potrebno hostovati na dve virtuelne mašine na AWS p
 Klijentski deo aplikacije implementirati u proizvoljnoj tehnologiji, a sve zahteve prema serveru je potrebno izvršavati preko Zuul servisa.
 
 ## Kako koristiti
+
 **NAPOMENA**: Aplikacija koja je koriscena u ovom primeru je ista ona koju smo koristili u primeru [**docker-compose**](https://github.com/lzravr/CloudComputing/tree/master/docker-compose) .
+
 ###Local
+
 Za pokretanje na lokalu, koriste se **.jar** fajlovi iz foldera **local**. Naziv MySql baze je *library* a kredencijali su:
 **username**: **phpmyadmin**
 **password**: **kiske**
@@ -37,6 +40,7 @@ Na drugoj virutelnoj masini se nalaze:
 Masinama su dodeljene staticke javne IP adrese (Elastic IPs). Aplikaciji se pristupa putem IP adrese masine na kojoj su webserver (nginx) i zuul, prve masine.
 
 ##Portovi
+
 - 8090 - eureka
 - 9079 - zuul
 - 8082 - read
