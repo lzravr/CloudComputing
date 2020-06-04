@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="generator" content="Jekyll v3.8.6">
+    <title>Books</title>
+
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    
+    <style>
+        main {
+            margin-top: 150px;
+        }
+        .delete {
+            color: #db4437;
+        }
+        .delete:hover {
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body onload="showBooks()">
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+        <a class="navbar-brand" href="#">Books</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault"
+            aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </nav>
+
+    <main role="main" class="container-fluid">
+        <div class="row">
+            <div class="col-md-4">
+                <form id="form">
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Title</label>
+                        <input type="text" class="form-control" id="title" name="title">
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Author</label>
+                        <input type="text" class="form-control" id="author" name="author">
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Genre</label>
+                        <input type="text" class="form-control" id="genre" name="genre">
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Year</label>
+                        <input type="text" class="form-control" id="year" name="year">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="float: right;">Save</button>
+                </form>
+            </div>
+            <div class="col-md-8">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Title</th>
+                            <th scope="col">Author</th>
+                            <th scope="col">Genre</th>
+                            <th scope="col">Year</th>
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="data">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main><!-- /.container -->
+
+    <script>
+        function showBooks() {
+            $.get("http://13.49.81.119:8079/read/books/all", function (data, status) {
+                table = "";
+                data.forEach(d => {
+                    table += "<tr>";
+                    table += "<td>" + d.id + "</td>";
+                    table += "<td>" + d.title + "</td>";
+                    table += "<td>" + d.author + "</td>";
+                    table += "<td>" + d.genre + "</td>";
+                    table += "<td>" + d.year + "</td>";
+                    table += "<td>" + "<p class='delete' onclick='deleteBook(" + d.id + ")'>X</>" + "</td>";
+                    table += "</tr>";
+                });
+
+                document.getElementById("data").innerHTML = table;
+            });
+        }
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous">
+    </script>
+
+    <script>
+        $("#form").submit(function (e) {
+
+            e.preventDefault(); // avoid to execute the actual submit of the form.
+
+            var form = $(this);
+            var url = "http://13.49.81.119:8079/write/books/add";
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(), // serializes the form's elements.
+                success: function (data) {
+                    alert(data); // show response from the php script.
+                    showBooks();
+                }
+            });
+        });
+
+        function deleteBook(id) {
+            console.log(id);
+            var url = "http://13.49.81.119:8079/delete/books/delete";
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: {
+                    "id" : id
+                }, // serializes the form's elements.
+                success: function (data) {
+                    alert(data); // show response from the php script.
+                    showBooks();
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
