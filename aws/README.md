@@ -14,8 +14,11 @@ Klijentski deo aplikacije implementirati u proizvoljnoj tehnologiji, a sve zahte
 ### Local
 
 Za pokretanje na lokalu, koriste se **.jar** fajlovi iz foldera **local**. Naziv MySql baze je *library* a kredencijali su:
+
 **username**: **phpmyadmin**
+
 **password**: **kiske**
+
 Portovi na kojima rade servisi su navedeni u nastavku.
 
 ### AWS
