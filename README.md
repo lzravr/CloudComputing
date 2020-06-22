@@ -5,6 +5,8 @@ U repozitorijumu se nalaze zadaci odradjeni u okviru predmeta racunarstvo u obla
 2. cwl_1
 3. cwl_2
 4. kubernetes_hpa
+5. aws_1
+6. aws_2
 
 ## Materijal
 [Docker tutorial](https://docker-curriculum.com/)
